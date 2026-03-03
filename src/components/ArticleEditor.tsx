@@ -1,11 +1,32 @@
-import { BasicTextStyleButton, CreateLinkButton, FormattingToolbarController, SuggestionMenuController, TextAlignButton, useCreateBlockNote } from '@blocknote/react';
+import { useDispatch } from 'react-redux';
+import { Block } from '@blocknote/core';
+import { BasicTextStyleButton, CreateLinkButton, FormattingToolbarController, SuggestionMenuController, TextAlignButton } from '@blocknote/react';
 import { BlockNoteView } from '@blocknote/shadcn';
 import '@blocknote/shadcn/style.css';
-import { ClipboardIcon, Heading1Icon, Heading2Icon, Heading3Icon, ListCollapseIcon, ListIcon, ListOrderedIcon, ListTodoIcon, MinusIcon, PaletteIcon, TableIcon, TextQuoteIcon, TypeIcon } from 'lucide-react';
+import {
+    BoxesIcon,
+    ClipboardIcon,
+    Heading1Icon,
+    Heading2Icon,
+    Heading3Icon,
+    ListCollapseIcon,
+    ListIcon,
+    ListOrderedIcon,
+    ListTodoIcon,
+    MinusIcon,
+    PaletteIcon,
+    TableIcon,
+    TextQuoteIcon,
+    TypeIcon,
+} from 'lucide-react';
+import { useEditorInstance } from '@/contexts/EditorContext';
+import { CustomEditor } from '@/contexts/useCustomEditor';
+import { setBlocks } from '@/slices/articleSlice';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 function ArticleEditor() {
-    const editor = useCreateBlockNote();
+    const dispatch = useDispatch();
+    const editor: CustomEditor = useEditorInstance();
     const SlashMenu = () => {
         const currentBlock = editor.getTextCursorPosition().block;
         return (
@@ -160,6 +181,40 @@ function ArticleEditor() {
             </div>
         );
     };
+    const PlusMenu = () => {
+        const currentBlock = editor.getTextCursorPosition().block;
+        return (
+            <div className='flex w-64 flex-col gap-1 rounded-md border border-slate-200 bg-white p-2 shadow-xl'>
+                <div
+                    className='flex flex-row items-center gap-2 rounded p-1 transition-colors hover:bg-slate-50'
+                    onClick={() => {
+                        editor.insertBlocks([{ type: 'thumbnail' }], currentBlock, 'before');
+                    }}
+                >
+                    <BoxesIcon size={18} />
+                    <p className='text-sm'>サムネイル</p>
+                </div>
+                <div
+                    className='flex flex-row items-center gap-2 rounded p-1 transition-colors hover:bg-slate-50'
+                    onClick={() => {
+                        editor.insertBlocks([{ type: 'articleInfo' }], currentBlock, 'before');
+                    }}
+                >
+                    <BoxesIcon size={18} />
+                    <p className='text-sm'>記事情報</p>
+                </div>
+                <div
+                    className='flex flex-row items-center gap-2 rounded p-1 transition-colors hover:bg-slate-50'
+                    onClick={() => {
+                        editor.insertBlocks([{ type: 'dailySchedule' }], currentBlock, 'before');
+                    }}
+                >
+                    <BoxesIcon size={18} />
+                    <p className='text-sm'>スケジュール（一日）</p>
+                </div>
+            </div>
+        );
+    };
     const Toolbar = () => {
         return (
             <div className='flex flex-row gap-1 rounded-md border border-slate-200 bg-white p-1 shadow'>
@@ -224,7 +279,16 @@ function ArticleEditor() {
     };
     return (
         <>
-            <BlockNoteView className='rounded-md border bg-white py-4 shadow-xs' data-color-scheme='light' editor={editor} slashMenu={false} formattingToolbar={false}>
+            <BlockNoteView
+                className='rounded-md border bg-white py-4 shadow-xs'
+                data-color-scheme='light'
+                editor={editor}
+                slashMenu={false}
+                formattingToolbar={false}
+                onChange={() => {
+                    dispatch(setBlocks(editor.document as Block[]));
+                }}
+            >
                 <SuggestionMenuController
                     triggerCharacter='/'
                     getItems={async () => {
@@ -232,10 +296,16 @@ function ArticleEditor() {
                     }}
                     suggestionMenuComponent={SlashMenu}
                 />
+                <SuggestionMenuController
+                    triggerCharacter='+'
+                    getItems={async () => {
+                        return [];
+                    }}
+                    suggestionMenuComponent={PlusMenu}
+                />
                 <FormattingToolbarController formattingToolbar={Toolbar} />
             </BlockNoteView>
         </>
     );
 }
-
 export default ArticleEditor;

@@ -3,8 +3,17 @@
     "useTabs": false,
     "singleQuote": true,
     "jsxSingleQuote": true,
-    "printWidth": 240,
-    "importOrder": ["^(react/(.*)$)|^(react$)", "^(next/(.*)$)|^(next$)", "^(.*)redux(.*)$", "^@mui/(.*)$", "^(.*)tailwindcss(.*)$", "<THIRD_PARTY_MODULES>", "^@/(.*)$", "^[./]"],
+    "printWidth": 180,
+    "importOrder": [
+        "^(react/(.*)$)|^(react$)",
+        "^(next/(.*)$)|^(next$)",
+        "^(.*)redux(.*)$",
+        "^@mui/(.*)$",
+        "^(.*)tailwindcss(.*)$",
+        "<THIRD_PARTY_MODULES>",
+        "^@/(.*)$",
+        "^[./]"
+    ],
     "plugins": ["@trivago/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
     "overrides": [
         {

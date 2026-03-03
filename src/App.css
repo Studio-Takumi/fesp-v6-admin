@@ -19,6 +19,33 @@ body {
 .bn-side-menu button svg:hover {
   @apply rounded bg-slate-50;
 }
+.bn-inline-content:has(> .ProseMirror-trailingBreak:only-child):before {
+  @apply text-slate-300;
+}
+[data-content-type='quote'] blockquote {
+  @apply bg-slate-50 text-slate-600;
+}
+.bn-block-content .bn-inline-content:has(> .ProseMirror-trailingBreak:only-child)::before {
+  font-style: normal;
+}
+.bn-block-content[data-content-type='heading'] h1.bn-inline-content:has(> .ProseMirror-trailingBreak:only-child)::before {
+  content: '見出し1' !important;
+}
+.bn-block-content[data-content-type='heading'] h2.bn-inline-content:has(> .ProseMirror-trailingBreak:only-child)::before {
+  content: '見出し2' !important;
+}
+.bn-block-content[data-content-type='heading'] h3.bn-inline-content:has(> .ProseMirror-trailingBreak:only-child)::before {
+  content: '見出し3' !important;
+}
+.bn-block-content[data-content-type='heading'] {
+  --level: 2em;
+}
+.bn-block-content[data-content-type='heading'][data-level='2'] {
+  --level: 1.6em;
+}
+.bn-block-content[data-content-type='heading'][data-level='3'] {
+  --level: 1.2em;
+}
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
