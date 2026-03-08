@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { BlockConfig, BlockNoDefaults } from '@blocknote/core';
 import { createReactBlockSpec } from '@blocknote/react';
 import { BoxesIcon } from 'lucide-react';
-import { useCustomEditor } from '@/contexts/useCustomEditor';
+import { useEditorInstance } from '@/contexts/EditorContext';
 import { setTitle } from '@/slices/articleSlice';
 import { RootState } from '@/store/store';
 import { timestamp } from '@/types/timestamp';
@@ -26,7 +26,7 @@ function ArticleInfo(props: {
                         readonly default: timestamp;
                     };
                 },
-                'none'
+                'inline'
             >
         >,
         any,
@@ -34,7 +34,7 @@ function ArticleInfo(props: {
     >;
 }) {
     const { block } = props;
-    const { editor } = useCustomEditor();
+    const editor = useEditorInstance();
     const dispatch = useDispatch();
     const title = useSelector((state: RootState) => state.articleReducer.title);
     const published_at = useSelector((state: RootState) => state.articleReducer.published_at);
@@ -108,7 +108,7 @@ export const createArticleInfo = createReactBlockSpec(
                 default: formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss') as timestamp,
             },
         },
-        content: 'none',
+        content: 'inline',
     },
     {
         render: ({ block }) => <ArticleInfo block={block} />,

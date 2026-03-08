@@ -1,8 +1,11 @@
 import { useDispatch } from 'react-redux';
 import { Link } from 'react-router';
+import { v4 as uuidv4 } from 'uuid';
 import { useEditorInstance } from '@/contexts/EditorContext';
 import { useGetArticlesQuery } from '@/services/articleApi';
 import { setArticleID, setBlocks, setCreateAt, setIsPublished, setPublishedAt, setTitle, setUpdateAt } from '@/slices/articleSlice';
+import { timestamp } from '@/types/timestamp';
+import { formatDate } from '@/utils/formatDate';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from './ui/accordion';
 
 function SideMenu() {
@@ -21,6 +24,20 @@ function SideMenu() {
                 <AccordionItem value='item'>
                     <AccordionTrigger>記事一覧</AccordionTrigger>
                     <AccordionContent>
+                        <p
+                            onClick={() => {
+                                dispatch(setArticleID({ articleID: uuidv4() }));
+                                dispatch(setTitle(''));
+                                dispatch(setBlocks([]));
+                                dispatch(setCreateAt(formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss') as timestamp));
+                                dispatch(setUpdateAt(formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss') as timestamp));
+                                dispatch(setPublishedAt(formatDate(new Date(), 'YYYY-MM-DD HH:mm:ss') as timestamp));
+                                dispatch(setIsPublished(false));
+                                editor.replaceBlocks(editor.document, []);
+                            }}
+                        >
+                            新規作成
+                        </p>
                         {error ? (
                             <p>エラー</p>
                         ) : isLoading ? (

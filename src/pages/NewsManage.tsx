@@ -14,11 +14,6 @@ function NewsManage() {
                     data={articles ?? []}
                     columns={[
                         {
-                            accessorKey: 'article_id',
-                            header: 'ID',
-                            size: 100,
-                        },
-                        {
                             accessorKey: 'create_at',
                             header: '作成日時',
                             size: 100,

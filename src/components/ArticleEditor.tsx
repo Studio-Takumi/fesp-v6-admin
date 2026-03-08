@@ -212,6 +212,24 @@ function ArticleEditor() {
                     <BoxesIcon size={18} />
                     <p className='text-sm'>スケジュール（一日）</p>
                 </div>
+                <div
+                    className='flex flex-row items-center gap-2 rounded p-1 transition-colors hover:bg-slate-50'
+                    onClick={() => {
+                        editor.insertBlocks([{ type: 'multiSchedule', children: [{ type: 'dailySchedule' }] }], currentBlock, 'before');
+                    }}
+                >
+                    <BoxesIcon size={18} />
+                    <p className='text-sm'>スケジュール（複数日）</p>
+                </div>
+                <div
+                    className='flex flex-row items-center gap-2 rounded p-1 transition-colors hover:bg-slate-50'
+                    onClick={() => {
+                        editor.insertBlocks([{ type: 'caption' }], currentBlock, 'before');
+                    }}
+                >
+                    <BoxesIcon size={18} />
+                    <p className='text-sm'>キャプション</p>
+                </div>
             </div>
         );
     };

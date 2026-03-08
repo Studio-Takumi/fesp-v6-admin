@@ -2,6 +2,7 @@ import { BlockNoteSchema, defaultBlockSpecs } from '@blocknote/core';
 import * as locales from '@blocknote/core/locales';
 import { useCreateBlockNote } from '@blocknote/react';
 import { createArticleInfo } from '@/components/uniqueBlocks/ArticleInfo';
+import { createCaption } from '@/components/uniqueBlocks/Caption';
 import { createDailySchedule } from '@/components/uniqueBlocks/DailySchedule';
 import { createMultiSchedule } from '@/components/uniqueBlocks/MultiSchedule';
 import { createThumbnail } from '@/components/uniqueBlocks/Thumbnail';
@@ -18,6 +19,7 @@ export const useCustomEditor = () => {
         thumbnail: createThumbnail(),
         dailySchedule: createDailySchedule(),
         multiSchedule: createMultiSchedule(),
+        caption: createCaption(),
     };
     const schema = BlockNoteSchema.create().extend({
         blockSpecs,
@@ -25,10 +27,11 @@ export const useCustomEditor = () => {
     const editor = useCreateBlockNote({
         dictionary,
         schema,
-        initialContent: [{ type: 'multiSchedule' }],
+        initialContent: [{ type: 'caption' }],
     });
-    return { editor, blockSpecs };
+    const blocks = editor.document;
+    return { editor, blocks };
 };
 export type UseCustomEditor = ReturnType<typeof useCustomEditor>;
 export type CustomEditor = UseCustomEditor['editor'];
-export type CustomBlockSpecs = UseCustomEditor['blockSpecs'];
+export type CustomBlock = UseCustomEditor['blocks'][number];

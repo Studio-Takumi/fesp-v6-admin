@@ -1,42 +1,43 @@
 import { useState } from 'react';
+import { BlockConfig, BlockNoDefaults } from '@blocknote/core';
 import { createReactBlockSpec } from '@blocknote/react';
 import { BoxesIcon } from 'lucide-react';
-import { formatDate } from '@/utils/formatDate';
-import { weekName } from '@/utils/weekName';
-import { Calendar } from '../ui/calendar';
+import { useEditorInstance } from '@/contexts/EditorContext';
+import { CustomBlock } from '@/contexts/useCustomEditor';
 import { Field } from '../ui/field';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
-import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 
-const MultiSchedule = () => {
-    const [panelNum, setPanelNum] = useState<number>(1);
-    type schedulePanel = {
-        panel: string;
-        date: Date;
-        start: number;
-        finish: number;
-        lines: number;
-        lineNames: string[];
-    };
-    const defaultPanel: schedulePanel = {
-        panel: 'Day',
-        date: new Date(),
-        start: 7,
-        finish: 16,
-        lines: 2,
-        lineNames: ['', ''],
-    };
-    const [panels, setPanels] = useState<schedulePanel[]>([defaultPanel]);
-
+function MultiSchedule(props: {
+    block: BlockNoDefaults<
+        Record<
+            'multiSchedule',
+            BlockConfig<
+                'multiSchedule',
+                {
+                    readonly panelNames: {
+                        readonly default: string;
+                    };
+                },
+                'inline'
+            >
+        >,
+        any,
+        any
+    >;
+}) {
+    const { block } = props;
+    const editor = useEditorInstance();
+    const [panelNum, setPanelNum] = useState<number>(block.props.panelNames.split(',').length ?? 1);
+    const [panelNames, setPanelNames] = useState<string[]>(block.props.panelNames.split(',') ?? ['']);
     return (
-        <div className='flex w-full flex-col gap-2 rounded-md bg-sky-50 p-2' contentEditable={false}>
+        <div className='flex w-full flex-col gap-4 rounded-md bg-sky-50 p-2' contentEditable={false}>
             <div className='flex flex-row items-center gap-1 text-sky-400'>
                 <BoxesIcon size={18} strokeWidth={1} />
-                <p className='text-sm!'>スケジュール（一日）</p>
+                <p className='text-sm!'>スケジュール（複数日）</p>
             </div>
-            <div className='flex w-auto flex-row gap-2'>
-                <Field>
+            <div>
+                <Field className='gap-2'>
                     <Label>パネル数</Label>
                     <Input
                         type='number'
@@ -45,137 +46,53 @@ const MultiSchedule = () => {
                         value={panelNum}
                         onChange={(e) => {
                             setPanelNum(Number(e.currentTarget.value));
-                            setPanels([...Array(Number(e.currentTarget.value))].map((_, index) => (index < panels.length ? panels[index] : defaultPanel)));
+                            setPanelNames([...Array(Number(e.currentTarget.value))].map((_, index) => (index < panelNames.length ? panelNames[index] : '')));
+                            editor.updateBlock(block, {
+                                children: [...Array(Number(e.currentTarget.value))].map((_, index) =>
+                                    index < block.children.length ? block.children[index] : { type: 'dailySchedule' },
+                                ) as CustomBlock[],
+                            });
                         }}
                     />
                 </Field>
             </div>
-            <div className='flex flex-col gap-2'>
-                {panels.map((panel, panelIndex) => (
-                    <div className='flex flex-col gap-2 rounded-md border-4 border-sky-100 p-2'>
-                        <div className='flex w-auto flex-row gap-2'>
-                            <Field>
-                                <Label>パネル名</Label>
-                                <Input
-                                    type='text'
-                                    className='w-64! shrink-0 bg-white! text-base!'
-                                    value={panel.panel}
-                                    onChange={(e) => setPanels(panels.map((panel, index) => (panelIndex === index ? { ...panel, panel: e.currentTarget.value } : panel)))}
-                                />
-                            </Field>
-                        </div>
-                        <div className='flex w-auto flex-row gap-2'>
-                            <Field className='w-auto'>
-                                <Label>表示日付</Label>
-                                <Popover>
-                                    <PopoverTrigger>
-                                        <Input
-                                            type='date'
-                                            className='shrink-0 bg-white! text-base! [&::-webkit-calendar-picker-indicator]:hidden'
-                                            placeholder='日付'
-                                            value={formatDate(panel.date, 'YYYY-MM-DD')}
-                                        />
-                                    </PopoverTrigger>
-                                    <PopoverContent className='w-auto p-0'>
-                                        <Calendar
-                                            mode='single'
-                                            selected={panel.date}
-                                            onSelect={(date) => {
-                                                setPanels(panels.map((panel, index) => (panelIndex === index ? { ...panel, date: date as Date } : panel)));
-                                            }}
-                                            formatters={{
-                                                formatCaption: (date) => formatDate(date, 'YYYY年M月'),
-                                                formatWeekdayName: (date: Date) => weekName[date.getDay()],
-                                            }}
-                                        />
-                                    </PopoverContent>
-                                </Popover>
-                            </Field>
-                            <Field className='w-auto'>
-                                <Label>開始時</Label>
-                                <Input
-                                    type='number'
-                                    className='shrink-0 bg-white! text-base!'
-                                    min={0}
-                                    max={panel.finish}
-                                    value={panel.start}
-                                    onChange={(e) => setPanels(panels.map((panel, index) => (panelIndex === index ? { ...panel, start: Number(e.currentTarget.value) } : panel)))}
-                                />
-                            </Field>
-                            <Field className='w-auto'>
-                                <Label>終了時</Label>
-                                <Input
-                                    type='number'
-                                    className='shrink-0 bg-white! text-base!'
-                                    min={panel.start + 1}
-                                    max={24}
-                                    value={panel.finish}
-                                    onChange={(e) => setPanels(panels.map((panel, index) => (panelIndex === index ? { ...panel, finish: Number(e.currentTarget.value) } : panel)))}
-                                />
-                            </Field>
-                            <Field className='w-auto'>
-                                <Label>列数</Label>
-                                <Input
-                                    type='number'
-                                    className='shrink-0 bg-white! text-base!'
-                                    min={1}
-                                    max={5}
-                                    value={panel.lines}
-                                    onChange={(e) =>
-                                        setPanels(
-                                            panels.map((panel, index) =>
-                                                panelIndex === index
-                                                    ? {
-                                                          ...panel,
-                                                          lines: Number(e.currentTarget.value),
-                                                          lineNames: [...Array(Number(e.currentTarget.value))].map((_, index) =>
-                                                              index < panel.lineNames.length ? panel.lineNames[index] : '',
-                                                          ),
-                                                      }
-                                                    : panel,
-                                            ),
-                                        )
-                                    }
-                                />
-                            </Field>
-                        </div>
-                        <div className='flex w-auto flex-row gap-2'>
-                            <Field className='max-w-96'>
-                                <Label>列名</Label>
-                                <div className='grid gap-2' style={{ gridTemplateColumns: `repeat(${panel.lines}, minmax(0, 1fr))` }}>
-                                    {panel.lineNames.map((name, lineIndex) => (
-                                        <Input
-                                            type='text'
-                                            className='shrink-0 bg-white! text-base!'
-                                            value={name}
-                                            onChange={(e) =>
-                                                setPanels(
-                                                    panels.map((panel, index) =>
-                                                        panelIndex === index
-                                                            ? { ...panel, lineNames: panel.lineNames.map((lineName, i) => (i === lineIndex ? e.currentTarget.value : lineName)) }
-                                                            : panel,
-                                                    ),
-                                                )
-                                            }
-                                        />
-                                    ))}
-                                </div>
-                            </Field>
-                        </div>
+            <div>
+                <Field className='gap-2'>
+                    <Label>パネル名</Label>
+                    <div className='grid gap-2' style={{ gridTemplateColumns: `repeat(${panelNum}, minmax(0, 1fr))` }}>
+                        {panelNames.map((name, index) => (
+                            <Input
+                                type='text'
+                                className='shrink-0 bg-white! text-base!'
+                                value={name}
+                                onChange={(e) => {
+                                    editor.updateBlock(block, {
+                                        props: {
+                                            panelNames: panelNames.map((panelName, i) => (i === index ? e.currentTarget.value : panelName)).join(','),
+                                        },
+                                    });
+                                    setPanelNames(panelNames.map((panelName, i) => (i === index ? e.currentTarget.value : panelName)));
+                                }}
+                            />
+                        ))}
                     </div>
-                ))}
+                </Field>
             </div>
         </div>
     );
-};
+}
 
 export const createMultiSchedule = createReactBlockSpec(
     {
         type: 'multiSchedule',
-        propSchema: {},
+        propSchema: {
+            panelNames: {
+                default: '' as string,
+            },
+        },
         content: 'inline',
     },
     {
-        render: MultiSchedule,
+        render: ({ block }) => <MultiSchedule block={block} />,
     },
 );

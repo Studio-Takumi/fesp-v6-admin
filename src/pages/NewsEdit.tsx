@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Block } from '@blocknote/core';
+import { toast } from 'sonner';
 import { UUIDTypes } from 'uuid';
 import ArticleEditor from '@/components/ArticleEditor';
 import { Calendar } from '@/components/ui/calendar';
@@ -33,6 +34,7 @@ function NewsEdit() {
                 <button
                     className='rounded-full bg-slate-600 px-3 py-1 text-white'
                     onClick={() => {
+                        toast('記事を更新中です', { position: 'top-center' });
                         fetch('https://hbu4jsx8qh.execute-api.ap-southeast-2.amazonaws.com/v1/admin/articles/edit', {
                             method: 'POST',
                             headers: {
@@ -49,7 +51,7 @@ function NewsEdit() {
                             }),
                         })
                             .then((res) => res.json())
-                            .then((data) => console.log(data));
+                            .then(() => toast('記事を更新しました', { position: 'top-center' }));
                     }}
                 >
                     更新
@@ -66,6 +68,7 @@ function NewsEdit() {
                                 className='w-40 shrink-0 bg-white text-base! [&::-webkit-calendar-picker-indicator]:hidden'
                                 placeholder='日付'
                                 value={formatDate(new Date(published_at), 'YYYY-MM-DD')}
+                                onChange={() => {}}
                             />
                         </PopoverTrigger>
                         <PopoverContent className='w-auto p-0'>
